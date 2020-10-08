@@ -9,13 +9,12 @@ from typing import Union
 
 import core
 from core import exceptions
-from core import logging
 from core import pruners
 from core import samplers
 from core import storages
 from core import trial as trial_module
-from core._study_direction import StudyDirection
-from core._study_summary import StudySummary  # NOQA
+from core.study._study_direction import StudyDirection
+from core.study._study_summary import StudySummary  # NOQA
 from core.trial import create_trial
 from core.trial import FrozenTrial
 from core.trial import TrialState
@@ -24,23 +23,64 @@ from core.trial import TrialState
 ObjectiveFuncType = Callable[[trial_module.Trial], float]
 
 
-_logger = logging.get_logger(__name__)
+class Study(object):
+    """A study corresponds to an optimization task, i.e., a set of trials.
 
+    This object provides interfaces to run a new :class:`~optuna.trial.Trial`, access trials'
+    history, set/get user-defined attributes of the study itself.
 
-class BaseStudy(object):
-    def __init__(self, study_id: int, storage: storages.BaseStorage) -> None:
+    Note that the direct use of this constructor is not recommended.
+    To create and load a study, please refer to the documentation of
+    :func:`~optuna.study.create_study` and :func:`~optuna.study.load_study` respectively.
+
+    """
+
+    def __init__(
+        self,
+        study_name: str,
+        storage: Union[str, "storages.BaseStorage"],
+        sampler: Optional["samplers.BaseSampler"] = None,
+        pruner: Optional[pruners.BasePruner] = None,
+    ) -> None:
+        self.study_name = study_name
+        storage = storages.get_storage(storage)
+        study_id = storage.get_study_id_from_name(study_name)
 
         self._study_id = study_id
         self._storage = storage
 
+        self.sampler = sampler or samplers.RandomSampler()
+        self.pruner = pruner or pruners.MedianPruner()
+
+        self._optimize_lock = threading.Lock()
+        self._stop_flag = False
+
+    def __getstate__(self) -> Dict[Any, Any]:
+
+        state = self.__dict__.copy()
+        del state["_optimize_lock"]
+        return state
+
+    def __setstate__(self, state: Dict[Any, Any]) -> None:
+
+        self.__dict__.update(state)
+        self._optimize_lock = threading.Lock()
+
+    def ask(self) -> trial_module.Trial:
+        self._storage.read_trials_from_remote_storage(self._study_id)
+
+        trial_id = self._storage.create_new_trial(self._study_id)
+        return trial_module.Trial(self, trial_id)
+
+    def tell(self, trial: trial_module.Trial, state: TrialState, value: Optional[float]) -> None:
+        if state == TrialState.COMPLETE:
+            assert value is not None
+        if value is not None:
+            self._storage.set_trial_value(trial._trial_id, value)
+        self._storage.set_trial_state(trial._trial_id, state)
+
     @property
     def best_params(self) -> Dict[str, Any]:
-        """Return parameters of the best trial in the study.
-
-        Returns:
-            A dictionary containing parameters of the best trial.
-        """
-
         return self.best_trial.params
 
     @property
@@ -127,49 +167,6 @@ class BaseStudy(object):
 
         self._storage.read_trials_from_remote_storage(self._study_id)
         return self._storage.get_all_trials(self._study_id, deepcopy=deepcopy)
-
-
-class Study(BaseStudy):
-    """A study corresponds to an optimization task, i.e., a set of trials.
-
-    This object provides interfaces to run a new :class:`~optuna.trial.Trial`, access trials'
-    history, set/get user-defined attributes of the study itself.
-
-    Note that the direct use of this constructor is not recommended.
-    To create and load a study, please refer to the documentation of
-    :func:`~optuna.study.create_study` and :func:`~optuna.study.load_study` respectively.
-
-    """
-
-    def __init__(
-        self,
-        study_name: str,
-        storage: Union[str, storages.BaseStorage],
-        sampler: Optional["samplers.BaseSampler"] = None,
-        pruner: Optional[pruners.BasePruner] = None,
-    ) -> None:
-
-        self.study_name = study_name
-        storage = storages.get_storage(storage)
-        study_id = storage.get_study_id_from_name(study_name)
-        super(Study, self).__init__(study_id, storage)
-
-        self.sampler = sampler or samplers.RandomSampler()
-        self.pruner = pruner or pruners.MedianPruner()
-
-        self._optimize_lock = threading.Lock()
-        self._stop_flag = False
-
-    def __getstate__(self) -> Dict[Any, Any]:
-
-        state = self.__dict__.copy()
-        del state["_optimize_lock"]
-        return state
-
-    def __setstate__(self, state: Dict[Any, Any]) -> None:
-
-        self.__dict__.update(state)
-        self._optimize_lock = threading.Lock()
 
     @property
     def user_attrs(self) -> Dict[str, Any]:
@@ -315,7 +312,6 @@ class Study(BaseStudy):
 
         self._stop_flag = True
 
-    @core._experimental.experimental("1.2.0")
     def enqueue_trial(self, params: Dict[str, Any]) -> None:
         """Enqueue a trial with given parameter values.
 
@@ -351,7 +347,6 @@ class Study(BaseStudy):
             create_trial(state=TrialState.WAITING, system_attrs={"fixed_params": params})
         )
 
-    @core._experimental.experimental("2.0.0")
     def add_trial(self, trial: FrozenTrial) -> None:
         """Add trial to study.
 
@@ -417,35 +412,9 @@ class Study(BaseStudy):
 
         self._storage.create_new_trial(self._study_id, template_trial=trial)
 
-    def _log_completed_trial(self, trial: trial_module.Trial, result: float) -> None:
-
-        if not _logger.isEnabledFor(logging.INFO):
-            return
-
-        _logger.info(
-            "Trial {} finished with value: {} and parameters: {}. "
-            "Best is trial {} with value: {}.".format(
-                trial.number, result, trial.params, self.best_trial.number, self.best_value
-            )
-        )
-
-    def ask(self) -> trial_module.Trial:
-        # Sync storage once at the beginning of the objective evaluation.
-        self._storage.read_trials_from_remote_storage(self._study_id)
-
-        trial_id = self._storage.create_new_trial(self._study_id)
-        return trial_module.Trial(self, trial_id)
-
-    def tell(self, trial: trial_module.Trial, state: TrialState, value: Optional[float]) -> None:
-        if state == TrialState.COMPLETE:
-            assert value is not None
-        if value is not None:
-            self._storage.set_trial_value(trial._trial_id, value)
-        self._storage.set_trial_state(trial._trial_id, state)
-
 
 def create_study(
-    storage: Optional[Union[str, storages.BaseStorage]] = None,
+    storage: Optional[Union[str, "storages.BaseStorage"]] = None,
     sampler: Optional["samplers.BaseSampler"] = None,
     pruner: Optional[pruners.BasePruner] = None,
     study_name: Optional[str] = None,
@@ -521,11 +490,6 @@ def create_study(
     except exceptions.DuplicatedStudyError:
         if load_if_exists:
             assert study_name is not None
-
-            _logger.info(
-                "Using an existing study with name '{}' instead of "
-                "creating a new one.".format(study_name)
-            )
             study_id = storage.get_study_id_from_name(study_name)
         else:
             raise
@@ -547,7 +511,7 @@ def create_study(
 
 def load_study(
     study_name: str,
-    storage: Union[str, storages.BaseStorage],
+    storage: Union[str, "storages.BaseStorage"],
     sampler: Optional["samplers.BaseSampler"] = None,
     pruner: Optional[pruners.BasePruner] = None,
 ) -> Study:
@@ -607,7 +571,7 @@ def load_study(
 
 def delete_study(
     study_name: str,
-    storage: Union[str, storages.BaseStorage],
+    storage: Union[str, "storages.BaseStorage"],
 ) -> None:
     """Delete a :class:`~optuna.study.Study` object.
 
@@ -656,7 +620,7 @@ def delete_study(
     storage.delete_study(study_id)
 
 
-def get_all_study_summaries(storage: Union[str, storages.BaseStorage]) -> List[StudySummary]:
+def get_all_study_summaries(storage: Union[str, "storages.BaseStorage"]) -> List[StudySummary]:
     """Get all history of studies stored in a specified storage.
 
     Example:

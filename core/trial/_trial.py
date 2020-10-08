@@ -9,7 +9,6 @@ import warnings
 
 import core
 from core import distributions
-from core import logging
 from core.distributions import BaseDistribution
 from core.distributions import CategoricalChoiceType
 from core.distributions import CategoricalDistribution
@@ -19,9 +18,6 @@ from core.distributions import IntUniformDistribution
 from core.distributions import LogUniformDistribution
 from core.distributions import UniformDistribution
 from core.trial._base import BaseTrial
-
-
-_logger = logging.get_logger(__name__)
 
 
 class Trial(BaseTrial):
@@ -72,7 +68,7 @@ class Trial(BaseTrial):
         high: float,
         *,
         step: Optional[float] = None,
-        log: bool = False
+        log: bool = False,
     ) -> float:
         """Suggest a value for the floating point parameter.
 

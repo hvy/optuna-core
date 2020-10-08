@@ -10,15 +10,11 @@ from typing import Union
 
 import core
 from core.distributions import BaseDistribution
-from core.logging import get_logger
 from core.samplers._base import BaseSampler
 from core.trial import FrozenTrial
 
 
 GridValueType = Union[str, float, int, bool, None]
-
-
-_logger = get_logger(__name__)
 
 
 class GridSampler(BaseSampler):
@@ -116,12 +112,6 @@ class GridSampler(BaseSampler):
             # This case may occur with distributed optimization or trial queue. If there is no
             # target grid, `GridSampler` evaluates a visited, duplicated point with the current
             # trial. After that, the optimization stops.
-
-            _logger.warning(
-                "`GridSampler` is re-evaluating a configuration because the grid has been "
-                "exhausted. This may happen due to a timing issue during distributed optimization "
-                "or when re-running optimizations on already finished studies."
-            )
 
             # One of all grids is randomly picked up in this case.
             target_grids = list(range(len(self._all_grids)))

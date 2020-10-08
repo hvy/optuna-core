@@ -9,16 +9,13 @@ from typing import Tuple
 import uuid
 
 import core
-from core import distributions  # NOQA
-from core._study_summary import StudySummary
+from core import distributions
 from core.exceptions import DuplicatedStudyError
 from core.storages._base import BaseStorage
 from core.storages._base import DEFAULT_STUDY_NAME_PREFIX
+from core.study._study_summary import StudySummary
 from core.trial import FrozenTrial
 from core.trial import TrialState
-
-
-_logger = core.logging.get_logger(__name__)
 
 
 class InMemoryStorage(BaseStorage):
@@ -60,8 +57,6 @@ class InMemoryStorage(BaseStorage):
                 study_name = DEFAULT_STUDY_NAME_PREFIX + study_uuid
             self._studies[study_id] = _StudyInfo(study_name)
             self._study_name_to_id[study_name] = study_id
-
-            _logger.info("A new study created in memory with name: {}".format(study_name))
 
             return study_id
 

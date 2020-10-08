@@ -7,7 +7,6 @@ from typing import Union
 
 import core
 from core import distributions
-from core import logging
 from core.distributions import BaseDistribution
 from core.distributions import CategoricalDistribution
 from core.distributions import DiscreteUniformDistribution
@@ -18,8 +17,6 @@ from core.distributions import UniformDistribution
 from core.trial._base import BaseTrial
 from core.trial._state import TrialState
 
-
-_logger = logging.get_logger(__name__)
 
 CategoricalChoiceType = Union[None, bool, int, float, str]
 
@@ -203,7 +200,7 @@ class FrozenTrial(BaseTrial):
         high: float,
         *,
         step: Optional[float] = None,
-        log: bool = False
+        log: bool = False,
     ) -> float:
 
         if step is not None:
@@ -443,7 +440,6 @@ class FrozenTrial(BaseTrial):
             return None
 
 
-@core._experimental.experimental("2.0.0")
 def create_trial(
     *,
     state: Optional[TrialState] = None,
@@ -452,7 +448,7 @@ def create_trial(
     distributions: Optional[Dict[str, BaseDistribution]] = None,
     user_attrs: Optional[Dict[str, Any]] = None,
     system_attrs: Optional[Dict[str, Any]] = None,
-    intermediate_values: Optional[Dict[int, float]] = None
+    intermediate_values: Optional[Dict[int, float]] = None,
 ) -> FrozenTrial:
     """Create a new :class:`~optuna.trial.FrozenTrial`.
 

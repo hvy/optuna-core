@@ -4,11 +4,7 @@ from typing import Dict
 from typing import Optional
 
 import core
-from core import logging
 from core import trial
-
-
-_logger = logging.get_logger(__name__)
 
 
 class StudySummary(object):

@@ -54,15 +54,6 @@ class TrialPruned(OptunaError):
     pass
 
 
-class CLIUsageError(OptunaError):
-    """Exception for CLI.
-
-    CLI raises this exception when it receives invalid configuration.
-    """
-
-    pass
-
-
 class StorageInternalError(OptunaError):
     """Exception for storage operation.
 
@@ -76,17 +67,6 @@ class DuplicatedStudyError(OptunaError):
     """Exception for a duplicated study name.
 
     This error is raised when a specified study name already exists in the storage.
-    """
-
-    pass
-
-
-class ExperimentalWarning(Warning):
-    """Experimental Warning class.
-
-    This implementation exists here because the policy of `FutureWarning` has been changed
-    since Python 3.7 was released. See the details in
-    https://docs.python.org/3/library/warnings.html#warning-categories.
     """
 
     pass

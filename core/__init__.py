@@ -1,10 +1,5 @@
-from core import _deprecated  # NOQA
-from core import _experimental  # NOQA
-from core import _study_direction  # NOQA
-from core import _study_summary  # NOQA
 from core import distributions  # NOQA
 from core import exceptions  # NOQA
-from core import logging  # NOQA
 from core import pruners  # NOQA
 from core import samplers  # NOQA
 from core import storages  # NOQA

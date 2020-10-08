@@ -4,13 +4,9 @@ from typing import Optional
 from typing import Union
 
 import core
-from core import logging
 from core.pruners._base import BasePruner
 from core.pruners._successive_halving import SuccessiveHalvingPruner
 from core.trial._state import TrialState
-
-
-_logger = logging.get_logger(__name__)
 
 
 class HyperbandPruner(BasePruner):
@@ -159,7 +155,6 @@ class HyperbandPruner(BasePruner):
                 return False
 
         bracket_id = self._get_bracket_id(study, trial)
-        _logger.debug("{}th bracket is selected".format(bracket_id))
         bracket_study = self._create_bracket_study(study, bracket_id)
         return self._pruners[bracket_id].prune(bracket_study, trial)
 
@@ -193,8 +188,6 @@ class HyperbandPruner(BasePruner):
                 )
                 + 1
             )
-
-        _logger.debug("Hyperband has {} brackets".format(self._n_brackets))
 
         for bracket_id in range(self._n_brackets):
             trial_allocation_budget = self._calculate_trial_allocation_budget(bracket_id)

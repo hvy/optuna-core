@@ -5,8 +5,8 @@ from typing import List
 from typing import Optional
 
 import core
-from core._study_summary import StudySummary
 from core.distributions import BaseDistribution
+from core.study._study_summary import StudySummary
 from core.trial import FrozenTrial
 from core.trial import TrialState
 

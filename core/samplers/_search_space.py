@@ -8,7 +8,7 @@ from core.distributions import BaseDistribution
 
 
 class IntersectionSearchSpace(object):
-    """A class to calculate the intersection search space of a :class:`~optuna.study.BaseStudy`.
+    """A class to calculate the intersection search space of a :class:`~optuna.study.Study`.
 
     Intersection search space contains the intersection of parameter distributions that have been
     suggested in the completed trials of the study so far.
@@ -27,9 +27,9 @@ class IntersectionSearchSpace(object):
         self._study_id = None  # type: Optional[int]
 
     def calculate(
-        self, study: "core.study.BaseStudy", ordered_dict: bool = False
+        self, study: "core.study.Study", ordered_dict: bool = False
     ) -> Dict[str, BaseDistribution]:
-        """Returns the intersection search space of the :class:`~optuna.study.BaseStudy`.
+        """Returns the intersection search space of the :class:`~optuna.study.Study`.
 
         Args:
             study:
@@ -87,9 +87,9 @@ class IntersectionSearchSpace(object):
 
 
 def intersection_search_space(
-    study: "core.study.BaseStudy", ordered_dict: bool = False
+    study: "core.study.Study", ordered_dict: bool = False
 ) -> Dict[str, BaseDistribution]:
-    """Return the intersection search space of the :class:`~optuna.study.BaseStudy`.
+    """Return the intersection search space of the :class:`~optuna.study.Study`.
 
     Intersection search space contains the intersection of parameter distributions that have been
     suggested in the completed trials of the study so far.
