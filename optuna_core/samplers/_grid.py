@@ -8,10 +8,10 @@ from typing import Mapping
 from typing import Sequence
 from typing import Union
 
-import core
-from core.distributions import BaseDistribution
-from core.samplers._base import BaseSampler
-from core.trial import FrozenTrial
+import optuna_core
+from optuna_core.distributions import BaseDistribution
+from optuna_core.samplers._base import BaseSampler
+from optuna_core.trial import FrozenTrial
 
 
 GridValueType = Union[str, float, int, bool, None]
@@ -90,14 +90,14 @@ class GridSampler(BaseSampler):
         self._n_min_trials = len(self._all_grids)
 
     def infer_relative_search_space(
-        self, study: "core.study.Study", trial: FrozenTrial
+        self, study: "optuna_core.study.Study", trial: FrozenTrial
     ) -> Dict[str, BaseDistribution]:
 
         return {}
 
     def sample_relative(
         self,
-        study: "core.study.Study",
+        study: "optuna_core.study.Study",
         trial: FrozenTrial,
         search_space: Dict[str, BaseDistribution],
     ) -> Dict[str, Any]:
@@ -135,7 +135,7 @@ class GridSampler(BaseSampler):
 
     def sample_independent(
         self,
-        study: "core.study.Study",
+        study: "optuna_core.study.Study",
         trial: FrozenTrial,
         param_name: str,
         param_distribution: BaseDistribution,
@@ -175,7 +175,7 @@ class GridSampler(BaseSampler):
             " or `None`.".format(param_name, type(param_value))
         )
 
-    def _get_unvisited_grid_ids(self, study: "core.study.Study") -> List[int]:
+    def _get_unvisited_grid_ids(self, study: "optuna_core.study.Study") -> List[int]:
 
         # List up unvisited grids based on already finished ones.
         visited_grids = []

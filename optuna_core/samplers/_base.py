@@ -2,9 +2,9 @@ import abc
 from typing import Any
 from typing import Dict
 
-import core
-from core.distributions import BaseDistribution
-from core.trial import FrozenTrial
+import optuna_core
+from optuna_core.distributions import BaseDistribution
+from optuna_core.trial import FrozenTrial
 
 
 class BaseSampler(object, metaclass=abc.ABCMeta):
@@ -41,7 +41,7 @@ class BaseSampler(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def infer_relative_search_space(
-        self, study: "core.study.Study", trial: FrozenTrial
+        self, study: "optuna_core.study.Study", trial: FrozenTrial
     ) -> Dict[str, BaseDistribution]:
         """Infer the search space that will be used by relative sampling in the target trial.
 
@@ -70,7 +70,7 @@ class BaseSampler(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def sample_relative(
         self,
-        study: "core.study.Study",
+        study: "optuna_core.study.Study",
         trial: FrozenTrial,
         search_space: Dict[str, BaseDistribution],
     ) -> Dict[str, Any]:
@@ -105,7 +105,7 @@ class BaseSampler(object, metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def sample_independent(
         self,
-        study: "core.study.Study",
+        study: "optuna_core.study.Study",
         trial: FrozenTrial,
         param_name: str,
         param_distribution: BaseDistribution,

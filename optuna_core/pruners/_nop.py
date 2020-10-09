@@ -1,5 +1,5 @@
-import core
-from core.pruners._base import BasePruner
+import optuna_core
+from optuna_core.pruners._base import BasePruner
 
 
 class NopPruner(BasePruner):
@@ -43,6 +43,8 @@ class NopPruner(BasePruner):
             study.optimize(objective, n_trials=20)
     """
 
-    def prune(self, study: "core.study.Study", trial: "core.trial.FrozenTrial") -> bool:
+    def prune(
+        self, study: "optuna_core.study.Study", trial: "optuna_core.trial.FrozenTrial"
+    ) -> bool:
 
         return False

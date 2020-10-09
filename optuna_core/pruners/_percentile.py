@@ -5,24 +5,24 @@ from typing import List
 
 import numpy as np
 
-import core
-from core.pruners._base import BasePruner
-from core.trial._state import TrialState
+import optuna_core
+from optuna_core.pruners._base import BasePruner
+from optuna_core.trial._state import TrialState
 
 
 def _get_best_intermediate_result_over_steps(
-    trial: "core.trial.FrozenTrial", direction: "core.study.StudyDirection"
+    trial: "optuna_core.trial.FrozenTrial", direction: "optuna_core.study.StudyDirection"
 ) -> float:
 
     values = np.array(list(trial.intermediate_values.values()), np.float)
-    if direction == core.study.StudyDirection.MAXIMIZE:
+    if direction == optuna_core.study.StudyDirection.MAXIMIZE:
         return np.nanmax(values)
     return np.nanmin(values)
 
 
 def _get_percentile_intermediate_result_over_trials(
-    all_trials: List["core.trial.FrozenTrial"],
-    direction: "core.study.StudyDirection",
+    all_trials: List["optuna_core.trial.FrozenTrial"],
+    direction: "optuna_core.study.StudyDirection",
     step: int,
     percentile: float,
 ) -> float:
@@ -32,7 +32,7 @@ def _get_percentile_intermediate_result_over_trials(
     if len(completed_trials) == 0:
         raise ValueError("No trials have been completed.")
 
-    if direction == core.study.StudyDirection.MAXIMIZE:
+    if direction == optuna_core.study.StudyDirection.MAXIMIZE:
         percentile = 100 - percentile
 
     return float(
@@ -160,7 +160,9 @@ class PercentilePruner(BasePruner):
         self._n_warmup_steps = n_warmup_steps
         self._interval_steps = interval_steps
 
-    def prune(self, study: "core.study.Study", trial: "core.trial.FrozenTrial") -> bool:
+    def prune(
+        self, study: "optuna_core.study.Study", trial: "optuna_core.trial.FrozenTrial"
+    ) -> bool:
 
         all_trials = study.get_trials(deepcopy=False)
         n_trials = len([t for t in all_trials if t.state == TrialState.COMPLETE])
@@ -195,6 +197,6 @@ class PercentilePruner(BasePruner):
         if math.isnan(p):
             return False
 
-        if direction == core.study.StudyDirection.MAXIMIZE:
+        if direction == optuna_core.study.StudyDirection.MAXIMIZE:
             return best_intermediate_result < p
         return best_intermediate_result > p

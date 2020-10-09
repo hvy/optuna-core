@@ -7,17 +7,17 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-import core
-from core import exceptions
-from core import pruners
-from core import samplers
-from core import storages
-from core import trial as trial_module
-from core.study._study_direction import StudyDirection
-from core.study._study_summary import StudySummary  # NOQA
-from core.trial import create_trial
-from core.trial import FrozenTrial
-from core.trial import TrialState
+import optuna_core
+from optuna_core import exceptions
+from optuna_core import pruners
+from optuna_core import samplers
+from optuna_core import storages
+from optuna_core import trial as trial_module
+from optuna_core.study._study_direction import StudyDirection
+from optuna_core.study._study_summary import StudySummary  # NOQA
+from optuna_core.trial import create_trial
+from optuna_core.trial import FrozenTrial
+from optuna_core.trial import TrialState
 
 
 ObjectiveFuncType = Callable[[trial_module.Trial], float]
@@ -107,7 +107,7 @@ class Study(object):
         return copy.deepcopy(self._storage.get_best_trial(self._study_id))
 
     @property
-    def direction(self) -> "core.study.StudyDirection":
+    def direction(self) -> "optuna_core.study.StudyDirection":
         """Return the direction of the study.
 
         Returns:

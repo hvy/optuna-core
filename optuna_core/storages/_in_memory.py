@@ -8,14 +8,14 @@ from typing import Optional
 from typing import Tuple
 import uuid
 
-import core
-from core import distributions
-from core.exceptions import DuplicatedStudyError
-from core.storages._base import BaseStorage
-from core.storages._base import DEFAULT_STUDY_NAME_PREFIX
-from core.study._study_summary import StudySummary
-from core.trial import FrozenTrial
-from core.trial import TrialState
+import optuna_core
+from optuna_core import distributions
+from optuna_core.exceptions import DuplicatedStudyError
+from optuna_core.storages._base import BaseStorage
+from optuna_core.storages._base import DEFAULT_STUDY_NAME_PREFIX
+from optuna_core.study._study_summary import StudySummary
+from optuna_core.trial import FrozenTrial
+from optuna_core.trial import TrialState
 
 
 class InMemoryStorage(BaseStorage):
@@ -71,14 +71,16 @@ class InMemoryStorage(BaseStorage):
             del self._study_name_to_id[study_name]
             del self._studies[study_id]
 
-    def set_study_direction(self, study_id: int, direction: "core.study.StudyDirection") -> None:
+    def set_study_direction(
+        self, study_id: int, direction: "optuna_core.study.StudyDirection"
+    ) -> None:
 
         with self._lock:
             self._check_study_id(study_id)
 
             study = self._studies[study_id]
             if (
-                study.direction != core.study.StudyDirection.NOT_SET
+                study.direction != optuna_core.study.StudyDirection.NOT_SET
                 and study.direction != direction
             ):
                 raise ValueError(
@@ -123,7 +125,7 @@ class InMemoryStorage(BaseStorage):
             self._check_study_id(study_id)
             return self._studies[study_id].name
 
-    def get_study_direction(self, study_id: int) -> "core.study.StudyDirection":
+    def get_study_direction(self, study_id: int) -> "optuna_core.study.StudyDirection":
 
         with self._lock:
             self._check_study_id(study_id)
@@ -313,7 +315,7 @@ class InMemoryStorage(BaseStorage):
         # Complete trials do not have `None` values.
         assert new_value is not None
 
-        if self.get_study_direction(study_id) == core.study.StudyDirection.MAXIMIZE:
+        if self.get_study_direction(study_id) == optuna_core.study.StudyDirection.MAXIMIZE:
             if best_value < new_value:
                 self._studies[study_id].best_trial_id = trial_id
         else:
@@ -416,5 +418,5 @@ class _StudyInfo:
         self.user_attrs = {}  # type: Dict[str, Any]
         self.system_attrs = {}  # type: Dict[str, Any]
         self.name = name  # type: str
-        self.direction = core.study.StudyDirection.NOT_SET
+        self.direction = optuna_core.study.StudyDirection.NOT_SET
         self.best_trial_id = None  # type: Optional[int]

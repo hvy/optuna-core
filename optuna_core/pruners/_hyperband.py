@@ -3,10 +3,10 @@ from typing import List
 from typing import Optional
 from typing import Union
 
-import core
-from core.pruners._base import BasePruner
-from core.pruners._successive_halving import SuccessiveHalvingPruner
-from core.trial._state import TrialState
+import optuna_core
+from optuna_core.pruners._base import BasePruner
+from optuna_core.pruners._successive_halving import SuccessiveHalvingPruner
+from optuna_core.trial._state import TrialState
 
 
 class HyperbandPruner(BasePruner):
@@ -148,7 +148,9 @@ class HyperbandPruner(BasePruner):
                 "But max_resource = {}".format(self._max_resource)
             )
 
-    def prune(self, study: "core.study.Study", trial: "core.trial.FrozenTrial") -> bool:
+    def prune(
+        self, study: "optuna_core.study.Study", trial: "optuna_core.trial.FrozenTrial"
+    ) -> bool:
         if len(self._pruners) == 0:
             self._try_initialization(study)
             if len(self._pruners) == 0:
@@ -158,7 +160,7 @@ class HyperbandPruner(BasePruner):
         bracket_study = self._create_bracket_study(study, bracket_id)
         return self._pruners[bracket_id].prune(bracket_study, trial)
 
-    def _try_initialization(self, study: "core.study.Study") -> None:
+    def _try_initialization(self, study: "optuna_core.study.Study") -> None:
         if self._max_resource == "auto":
             trials = study.get_trials(deepcopy=False)
             n_steps = [
@@ -214,7 +216,9 @@ class HyperbandPruner(BasePruner):
         s = self._n_brackets - 1 - bracket_id
         return math.ceil(self._n_brackets * (self._reduction_factor ** s) / (s + 1))
 
-    def _get_bracket_id(self, study: "core.study.Study", trial: "core.trial.FrozenTrial") -> int:
+    def _get_bracket_id(
+        self, study: "optuna_core.study.Study", trial: "optuna_core.trial.FrozenTrial"
+    ) -> int:
         """Compute the index of bracket for a trial of ``trial_number``.
 
         The index of a bracket is noted as :math:`s` in
@@ -237,8 +241,8 @@ class HyperbandPruner(BasePruner):
         assert False, "This line should be unreachable."
 
     def _create_bracket_study(
-        self, study: "core.study.Study", bracket_id: int
-    ) -> "core.study.Study":
+        self, study: "optuna_core.study.Study", bracket_id: int
+    ) -> "optuna_core.study.Study":
         # This class is assumed to be passed to
         # `SuccessiveHalvingPruner.prune` in which `get_trials`,
         # `direction`, and `storage` are used.
@@ -257,7 +261,7 @@ class HyperbandPruner(BasePruner):
                 "trials",
             )
 
-            def __init__(self, study: "core.study.Study", bracket_id: int) -> None:
+            def __init__(self, study: "optuna_core.study.Study", bracket_id: int) -> None:
                 super().__init__(
                     study_name=study.study_name,
                     storage=study._storage,
@@ -266,7 +270,7 @@ class HyperbandPruner(BasePruner):
                 )
                 self._bracket_id = bracket_id
 
-            def get_trials(self, deepcopy: bool = True) -> List["core.trial.FrozenTrial"]:
+            def get_trials(self, deepcopy: bool = True) -> List["optuna_core.trial.FrozenTrial"]:
                 trials = super().get_trials(deepcopy=deepcopy)
                 pruner = self.pruner
                 assert isinstance(pruner, HyperbandPruner)

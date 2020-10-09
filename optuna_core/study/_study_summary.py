@@ -3,8 +3,8 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
-import core
-from core import trial
+import optuna_core
+from optuna_core import trial
 
 
 class StudySummary(object):
@@ -35,7 +35,7 @@ class StudySummary(object):
     def __init__(
         self,
         study_name: str,
-        direction: "core.study.StudyDirection",
+        direction: "optuna_core.study.StudyDirection",
         best_trial: Optional[trial.FrozenTrial],
         user_attrs: Dict[str, Any],
         system_attrs: Dict[str, Any],

@@ -3,7 +3,7 @@ from setuptools import setup
 
 
 setup(
-    name="core",
+    name="optuna_core",
     version="0.0.1a0",
     description="Optuna core",
     packages=find_packages(),

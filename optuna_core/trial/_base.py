@@ -5,8 +5,8 @@ from typing import Dict
 from typing import Optional
 from typing import Sequence
 
-from core.distributions import BaseDistribution
-from core.distributions import CategoricalChoiceType
+from optuna_core.distributions import BaseDistribution
+from optuna_core.distributions import CategoricalChoiceType
 
 
 class BaseTrial(object, metaclass=abc.ABCMeta):

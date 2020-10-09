@@ -1,13 +1,15 @@
 import abc
 
-import core
+import optuna_core
 
 
 class BasePruner(object, metaclass=abc.ABCMeta):
     """Base class for pruners."""
 
     @abc.abstractmethod
-    def prune(self, study: "core.study.Study", trial: "core.trial.FrozenTrial") -> bool:
+    def prune(
+        self, study: "optuna_core.study.Study", trial: "optuna_core.trial.FrozenTrial"
+    ) -> bool:
         """Judge whether the trial should be pruned based on the reported values.
 
         Note that this method is not supposed to be called by library users. Instead,

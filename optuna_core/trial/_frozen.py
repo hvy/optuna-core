@@ -5,17 +5,17 @@ from typing import Optional
 from typing import Sequence
 from typing import Union
 
-import core
-from core import distributions
-from core.distributions import BaseDistribution
-from core.distributions import CategoricalDistribution
-from core.distributions import DiscreteUniformDistribution
-from core.distributions import IntLogUniformDistribution
-from core.distributions import IntUniformDistribution
-from core.distributions import LogUniformDistribution
-from core.distributions import UniformDistribution
-from core.trial._base import BaseTrial
-from core.trial._state import TrialState
+import optuna_core
+from optuna_core import distributions
+from optuna_core.distributions import BaseDistribution
+from optuna_core.distributions import CategoricalDistribution
+from optuna_core.distributions import DiscreteUniformDistribution
+from optuna_core.distributions import IntLogUniformDistribution
+from optuna_core.distributions import IntUniformDistribution
+from optuna_core.distributions import LogUniformDistribution
+from optuna_core.distributions import UniformDistribution
+from optuna_core.trial._base import BaseTrial
+from optuna_core.trial._state import TrialState
 
 
 CategoricalChoiceType = Union[None, bool, int, float, str]

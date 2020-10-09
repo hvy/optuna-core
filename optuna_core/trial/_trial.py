@@ -7,17 +7,17 @@ from typing import Sequence
 from typing import Union
 import warnings
 
-import core
-from core import distributions
-from core.distributions import BaseDistribution
-from core.distributions import CategoricalChoiceType
-from core.distributions import CategoricalDistribution
-from core.distributions import DiscreteUniformDistribution
-from core.distributions import IntLogUniformDistribution
-from core.distributions import IntUniformDistribution
-from core.distributions import LogUniformDistribution
-from core.distributions import UniformDistribution
-from core.trial._base import BaseTrial
+import optuna_core
+from optuna_core import distributions
+from optuna_core.distributions import BaseDistribution
+from optuna_core.distributions import CategoricalChoiceType
+from optuna_core.distributions import CategoricalDistribution
+from optuna_core.distributions import DiscreteUniformDistribution
+from optuna_core.distributions import IntLogUniformDistribution
+from optuna_core.distributions import IntUniformDistribution
+from optuna_core.distributions import LogUniformDistribution
+from optuna_core.distributions import UniformDistribution
+from optuna_core.trial._base import BaseTrial
 
 
 class Trial(BaseTrial):
@@ -39,7 +39,7 @@ class Trial(BaseTrial):
 
     """
 
-    def __init__(self, study: "core.study.Study", trial_id: int) -> None:
+    def __init__(self, study: "optuna_core.study.Study", trial_id: int) -> None:
 
         self.study = study
         self._trial_id = trial_id
@@ -54,7 +54,7 @@ class Trial(BaseTrial):
 
         trial = self.storage.get_trial(self._trial_id)
 
-        study = core.pruners._filter_study(self.study, trial)
+        study = optuna_core.pruners._filter_study(self.study, trial)
 
         self.relative_search_space = self.study.sampler.infer_relative_search_space(study, trial)
         self.relative_params = self.study.sampler.sample_relative(
@@ -679,11 +679,11 @@ class Trial(BaseTrial):
             if self._is_fixed_param(name, distribution):
                 param_value = storage.get_trial_system_attrs(trial_id)["fixed_params"][name]
             elif distribution.single():
-                param_value = core.distributions._get_single_value(distribution)
+                param_value = optuna_core.distributions._get_single_value(distribution)
             elif self._is_relative_param(name, distribution):
                 param_value = self.relative_params[name]
             else:
-                study = core.pruners._filter_study(self.study, trial)
+                study = optuna_core.pruners._filter_study(self.study, trial)
                 param_value = self.study.sampler.sample_independent(
                     study, trial, name, distribution
                 )
